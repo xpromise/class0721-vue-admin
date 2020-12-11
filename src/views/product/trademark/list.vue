@@ -3,6 +3,21 @@
     <el-button type="primary" @click="visible = true" icon="el-icon-plus"
       >添加</el-button
     >
+    <!--
+      :count="count"
+      v-bind:count="count" 单向数据流 / 强制绑定数据
+        子组件只能读取不能修改
+        问题：子组件需要修改数据
+        解决：数据源在哪，更新数据的方法就定义在哪
+
+      :count.sync="count" 给子组件传递xxx数据以及更新数据的方法update:xxx
+        相当于：
+          :count="count" @update:count="xxx"
+
+        .sync用于父子通信（子向父）
+     -->
+    <!-- <Test :count="count" :updateCount="updateCount" /> -->
+    <!-- <Test :count.sync="count" /> -->
 
     <el-table :data="trademarkList" border style="width: 100%; margin: 20px 0">
       <el-table-column type="index" label="序号" width="80" align="center">
@@ -114,11 +129,13 @@
 
 <script>
 // import { trademark } from "@/api";
+import Test from "./test";
 
 export default {
   name: "TrademarkList",
   data() {
     return {
+      count: 0, // 测试数据
       trademarkList: [], // 所有数据
       total: 0, // 总数
       page: 1, // 页码
@@ -146,6 +163,9 @@ export default {
     };
   },
   methods: {
+    // updateCount() {
+    //   this.count++;
+    // },
     // 提交表单
     submitForm(form) {
       // 校验表单
@@ -213,6 +233,9 @@ export default {
   },
   mounted() {
     this.getPageList(this.page, this.limit);
+  },
+  components: {
+    Test,
   },
 };
 
