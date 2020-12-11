@@ -109,18 +109,27 @@ export default {
   name: "TrademarkList",
   data() {
     return {
-      trademarkList: [],
-      total: 0,
-      page: 1,
-      limit: 3,
-      visible: false,
+      trademarkList: [], // 所有数据
+      total: 0, // 总数
+      page: 1, // 页码
+      limit: 3, // 每页条数
+      visible: false, // 对话框显示&隐藏
       trademarkForm: {
+        // 表单数据
         tmName: "",
         logoUrl: "",
       },
       rules: {
+        // 表单校验规则
         tmName: [
-          { required: true, message: "请输入品牌名称", trigger: "blur" },
+          {
+            // 必填项
+            required: true,
+            // 错误信息
+            message: "请输入品牌名称",
+            // 触发表单校验时机
+            trigger: "blur",
+          },
         ],
         logoUrl: [
           { required: true, message: "请上传品牌LOGO", trigger: "change" },
