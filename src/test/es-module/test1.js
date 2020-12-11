@@ -26,27 +26,43 @@
 */
 
 // 1. 默认导出(只能有一个)
-export default {
-  m: 1
-}
+const a = 1;
+// const b = 2;
+export default a;
+// export default b;
 
-// 2. 分别导出(可以有多个)
-export const yyy = 3
-export function zzz() {
+/*
+  默认暴露实际暴露的内容：
+    {
+      default: 1
+    }
+  当你 import result from './xxx' 引入时
+  实际相当于 import { default as result } from './xxx' 写法
+*/
 
-}
+// 2.导出方式二: 非默认分别导出 (可以有多个)
+export const b = 2;
+export const c = 3;
 
-// 3. 统一导出(可以有多个)
-const a = 1
-const b = 2
-const c = 3
-export {
-  a,
-  b,
-  c
-}
-const d = 4
-const e = 5
+/*
+  分别暴露实际暴露的内容：
+    {
+      b: 2,
+      c: 3
+    }
+
+  默认暴露和分别暴露可以共存
+    {
+      b: 2,
+      c: 3,
+      default: 1
+    }
+*/
+
+const d = 4;
+const e = 5;
+
+// 统一暴露
 export {
   d,
   e

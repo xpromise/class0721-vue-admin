@@ -11,8 +11,18 @@ import './plugins/vcharts'
 import './plugins/elements'
 
 // 引入es6模块化的测试模块
-import './test/es-module/test2'
-import './test/es-module/test4'
+
+// 引入默认暴露
+// import result from './test/es-module/test1'
+// import { default as result } from './test/es-module/test1'
+// 引入分别暴露
+// import { a, b } from './test/es-module/test1'
+// 引入所有重命名为result
+// import * as result from './test/es-module/test1'
+// import a, { b, c, d, e } from './test/es-module/test1'
+
+// console.log('result', result);
+// console.log('result', a, b, c, d, e);
 
 // 引入全局样式
 import '@/styles/index.scss'
