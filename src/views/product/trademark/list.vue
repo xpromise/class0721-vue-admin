@@ -75,9 +75,19 @@
           <el-input v-model="trademarkForm.tmName"></el-input>
         </el-form-item>
         <el-form-item label="品牌LOGO" prop="logoUrl">
+          <!--
+            前提允许跨域
+              action="http://182.92.128.115/admin/product/fileUpload"
+              目标服务器地址: 代理配置中 (vue.config.js)
+
+            不允许跨域，就使用proxy
+              action="/dev-api/admin/product/fileUpload"
+              /dev-api -> request.js 代理
+             在main.js中定义 Vue.prototype.$BASE_API = process.env.VUE_APP_BASE_API
+           -->
           <el-upload
             class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            :action="`${$BASE_API}/admin/product/fileUpload`"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
@@ -131,9 +141,7 @@ export default {
             trigger: "blur",
           },
         ],
-        logoUrl: [
-          { required: true, message: "请上传品牌LOGO", trigger: "change" },
-        ],
+        logoUrl: [{ required: true, message: "请上传品牌LOGO" }],
       },
     };
   },
@@ -141,17 +149,48 @@ export default {
     // 提交表单
     submitForm(form) {
       // 校验表单
-      this.$refs[form].validate((valid) => {
+      this.$refs[form].validate(async (valid) => {
         if (valid) {
           // 表单校验通过
-          console.log(this.trademarkForm);
+          // console.log(this.trademarkForm);
+          // 发送请求
+          const result = await this.$API.trademark.addTrademark(
+            this.trademarkForm
+          );
+          if (result.code === 200) {
+            this.$message.success("添加品牌数据成功~");
+            this.visible = false; // 隐藏对话框
+            this.getPageList(this.page, this.limit); // 请求加载新数据
+          } else {
+            this.$message.error(result.message);
+          }
         }
       });
     },
     // 上传图片成功的回调
-    handleAvatarSuccess() {},
+    handleAvatarSuccess(res) {
+      // console.log(res.data); // 图片地址
+      this.trademarkForm.logoUrl = res.data;
+    },
     // 上次图片之前触发的回调
-    beforeAvatarUpload() {},
+    beforeAvatarUpload(file) {
+      // console.log(file);
+      const imgTypes = ["image/jpg", "image/png", "image/jpeg"];
+      // 检测文件类型
+      const isValidType = imgTypes.indexOf(file.type) > -1;
+      // 检测文件大小
+      const isLt = file.size / 1024 < 50;
+
+      if (!isValidType) {
+        this.$message.error("上传品牌LOGO只能是 JPG 或 PNG 格式!");
+      }
+      if (!isLt) {
+        this.$message.error("上传品牌LOGO大小不能超过 50 kb!");
+      }
+      // 返回值为true，代表可以上传
+      // 返回值为false，代表不可以上传
+      return isValidType && isLt;
+    },
     // handleSizeChange(limit) {
     //   this.getPageList(this.page, limit);
     // },
@@ -160,19 +199,14 @@ export default {
     // },
     // 请求分页列表数据
     async getPageList(page, limit) {
-      try {
-        const result = await this.$API.trademark.getPageList(page, limit);
-        if (result.code === 200) {
-          this.$message.success("获取品牌分页列表成功");
-          this.limit = result.data.size; // 代表每页显示的条数
-          this.page = result.data.current; // 代表当前页码
-          this.trademarkList = result.data.records;
-          this.total = result.data.total; // 总数
-        } else {
-          this.$message.error("获取品牌分页列表失败");
-        }
-      } catch (e) {
-        console.log(e);
+      const result = await this.$API.trademark.getPageList(page, limit);
+      if (result.code === 200) {
+        this.$message.success("获取品牌分页列表成功");
+        this.limit = result.data.size; // 代表每页显示的条数
+        this.page = result.data.current; // 代表当前页码
+        this.trademarkList = result.data.records;
+        this.total = result.data.total; // 总数
+      } else {
         this.$message.error("获取品牌分页列表失败");
       }
     },
