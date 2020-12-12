@@ -156,9 +156,11 @@ export default {
         tmName: [
           {
             // 必填项
-            required: true,
+            // required: true,
             // 错误信息
-            message: "请输入品牌名称",
+            // message: "请输入品牌名称",
+            // 自定义表单校验规则
+            validator: this.validator,
             // 触发表单校验时机
             trigger: "blur",
           },
@@ -168,7 +170,26 @@ export default {
     };
   },
   methods: {
+    validator(rule, value, callback) {
+      /*
+        rule  校验的字段名
+        value 校验的字段值
+        callback 决定表单校验成功/失败
+      */
+      // 其中callback必须调用
+      if (!value) {
+        callback(new Error("请输入品牌名称"));
+        return;
+      } else if (value.length < 2 || value.length > 10) {
+        callback(new Error("输入品牌名称的长度应为2-10位"));
+        return;
+      }
+
+      callback();
+    },
     add() {
+      // 清空表单的校验
+      this.$refs.trademarkForm && this.$refs.trademarkForm.clearValidate();
       this.visible = true;
       this.trademarkForm = {};
     },
@@ -182,6 +203,9 @@ export default {
         trademarkForm = row
         trademarkForm.x = 2
       */
+      // 清空表单的校验
+      this.$refs.trademarkForm && this.$refs.trademarkForm.clearValidate();
+
       // 显示对话框
       this.visible = true;
       // row 代表当前行的数据 {}
