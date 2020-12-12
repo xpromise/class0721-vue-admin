@@ -37,7 +37,9 @@
           <el-button type="warning" icon="el-icon-edit" @click="update(row)"
             >修改</el-button
           >
-          <el-button type="danger" icon="el-icon-delete">删除</el-button>
+          <el-button type="danger" icon="el-icon-delete" @click="del(row)"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -170,6 +172,39 @@ export default {
     };
   },
   methods: {
+    del(row) {
+      this.$confirm(`确定删除 ${row.tmName} 吗?`, "提示", {
+        type: "warning",
+      })
+        .then(async () => {
+          // 点击确定的回调
+          // 发删除品牌的请求
+          const result = await this.$API.trademark.deleteTrademark(row.id);
+          // 如果成功了, 提示成功, 重新获取列表(哪一页?)
+          this.$message({
+            type: "success",
+            message: "删除成功!",
+          });
+
+          // 哪一页?  显示上一页(当前页的列表数据只剩下1个)  否则显示当前页
+          // 如果当前是第1页且只剩下1条数据 ==> 请求第1页数据(当前页)
+          this.getPageList(
+            this.trademarkList.length === 1 && this.page > 1
+              ? this.page - 1
+              : this.page,
+            this.limit
+          );
+        })
+        .catch((error) => {
+          // 点击取消的回调
+          if (error === "cancel") {
+            this.$message({
+              type: "info",
+              message: "已取消删除",
+            });
+          }
+        });
+    },
     validator(rule, value, callback) {
       /*
         rule  校验的字段名
