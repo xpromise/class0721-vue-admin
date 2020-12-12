@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Category @change="getAttrList" />
+    <Category @change="getAttrList" :disabled="!isShowList" />
 
     <el-card v-show="isShowList" style="margin-top: 20px">
       <el-button type="primary" icon="el-icon-plus">添加属性</el-button>
@@ -46,7 +46,9 @@
         </el-form-item>
       </el-form>
 
-      <el-button type="primary" icon="el-icon-plus">添加属性</el-button>
+      <el-button type="primary" icon="el-icon-plus" @click="addAttrValue"
+        >添加属性值</el-button
+      >
 
       <el-table
         :data="attr.attrValueList"
@@ -56,7 +58,7 @@
         <el-table-column type="index" label="序号" width="80" align="center">
         </el-table-column>
         <el-table-column label="属性值名称">
-          <template v-slot="{ row }">
+          <template v-slot="{ row, $index }">
             <!--
               事件修饰符：
                 .native
@@ -66,8 +68,8 @@
             <el-input
               v-if="row.edit"
               v-model="row.valueName"
-              @blur="row.edit = false"
-              @keyup.enter.native="row.edit = false"
+              @blur="editCompleted(row, $index)"
+              @keyup.enter.native="editCompleted(row, $index)"
               autofocus
               ref="input"
               size="mini"
@@ -82,18 +84,24 @@
           </template>
         </el-table-column>
         <el-table-column label="操作">
-          <template>
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-            ></el-button>
+          <template v-slot="{ row, $index }">
+            <!-- 文档有问题：onConfirm -->
+            <el-popconfirm
+              @onConfirm="delAttrValue($index)"
+              :title="`确定删除 ${row.valueName} 吗？`"
+              ><el-button
+                type="danger"
+                icon="el-icon-delete"
+                size="mini"
+                slot="reference"
+              ></el-button
+            ></el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-button type="primary">保存</el-button>
-      <el-button>取消</el-button>
+      <el-button type="primary" @click="save">保存</el-button>
+      <el-button @click="isShowList = true">取消</el-button>
     </el-card>
   </div>
 </template>
@@ -125,6 +133,33 @@ export default {
     };
   },
   methods: {
+    editCompleted(row, index) {
+      if (!row.valueName) {
+        this.attr.attrValueList.splice(index, 1);
+        return;
+      }
+      row.edit = false;
+    },
+    async save() {
+      const result = await this.$API.attrs.saveAttrInfo(this.attr);
+      if (result.code === 200) {
+        this.$message.success("更新属性成功~");
+        this.isShowList = true;
+        this.getAttrList(this.category);
+      } else {
+        this.$message.error(result.message);
+      }
+    },
+    delAttrValue(index) {
+      console.log(index);
+      this.attr.attrValueList.splice(index, 1);
+    },
+    addAttrValue() {
+      this.attr.attrValueList.push({ edit: true });
+      this.$nextTick(() => {
+        this.$refs.input.focus();
+      });
+    },
     edit(row) {
       this.$set(row, "edit", true);
       this.$nextTick(() => {
@@ -133,14 +168,25 @@ export default {
     },
     update(attr) {
       // 为了防止attr变化时直接修改原数据
-      this.attr = {
-        ...attr,
-      };
+      // this.attr = {
+      //   ...attr,
+      // };
+
+      // 深度克隆：防止对象中对象还存在引用关系
+      this.attr = JSON.parse(JSON.stringify(attr));
 
       this.isShowList = false;
     },
-    getAttrList(attrList) {
-      this.attrList = attrList;
+    async getAttrList(category) {
+      this.category = category;
+      const result = await this.$API.attrs.getAttrList(category);
+      if (result.code === 200) {
+        // console.log(result.data);
+        // 子组件给父组件传递参数 自定义事件
+        this.attrList = result.data;
+      } else {
+        this.$message.error(result.message);
+      }
     },
   },
   components: {

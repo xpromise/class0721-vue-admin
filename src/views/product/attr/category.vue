@@ -6,6 +6,7 @@
           v-model="category.category1Id"
           placeholder="请选择"
           @change="handleSelectChange1"
+          :disabled="disabled"
         >
           <el-option
             v-for="c1 in category1List"
@@ -20,6 +21,7 @@
           v-model="category.category2Id"
           placeholder="请选择"
           @change="handleSelectChange2"
+          :disabled="disabled"
         >
           <el-option
             v-for="c2 in category2List"
@@ -34,6 +36,7 @@
           v-model="category.category3Id"
           placeholder="请选择"
           @change="handleSelectChange3"
+          :disabled="disabled"
         >
           <el-option
             v-for="c3 in category3List"
@@ -50,6 +53,7 @@
 <script>
 export default {
   name: "Category",
+  props: ["disabled"],
   data() {
     return {
       category: {
@@ -93,14 +97,8 @@ export default {
         ...this.category,
         category3Id,
       };
-      const result = await this.$API.attrs.getAttrList(category);
-      if (result.code === 200) {
-        // console.log(result.data);
-        // 子组件给父组件传递参数 自定义事件
-        this.$emit("change", result.data);
-      } else {
-        this.$message.error(result.message);
-      }
+
+      this.$emit("change", category);
     },
   },
   async mounted() {
