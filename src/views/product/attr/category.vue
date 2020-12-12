@@ -65,6 +65,11 @@ export default {
   methods: {
     // 处理输入框的change事件
     async handleSelectChange1(category1Id) {
+      this.category2List = [];
+      this.category3List = [];
+      this.category.category2Id = "";
+      this.category.category3Id = "";
+
       const result = await this.$API.attrs.getCategorys2(category1Id);
       if (result.code === 200) {
         this.category2List = result.data;
@@ -73,6 +78,9 @@ export default {
       }
     },
     async handleSelectChange2(category2Id) {
+      this.category.category3Id = "";
+      this.category3List = [];
+
       const result = await this.$API.attrs.getCategorys3(category2Id);
       if (result.code === 200) {
         this.category3List = result.data;
