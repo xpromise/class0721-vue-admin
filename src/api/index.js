@@ -8,6 +8,7 @@ export { default as clientUser } from "./clientUser";
 // 2. 将order给分别暴露出去
 export { default as order } from "./order";
 export { default as trademark } from "./product/trademark";
+export { default as attrs } from "./product/attrs";
 
 // import { default as order } from './order' // 完整引入
 // import order from './order' // 完整引入的简写
@@ -22,6 +23,7 @@ export { default as trademark } from "./product/trademark";
     category,
     clientUser,
     order,
-    trademark
+    trademark,
+    attrs
   }
 */
