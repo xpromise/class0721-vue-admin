@@ -17,7 +17,12 @@
     <!-- <Test :count="count" :updateCount="updateCount" /> -->
     <!-- <Test :count.sync="count" /> -->
 
-    <el-table :data="trademarkList" border style="width: 100%; margin: 20px 0">
+    <el-table
+      :data="trademarkList"
+      v-loading="loading"
+      border
+      style="width: 100%; margin: 20px 0"
+    >
       <el-table-column type="index" label="序号" width="80" align="center">
       </el-table-column>
       <el-table-column prop="tmName" label="品牌名称"> </el-table-column>
@@ -148,6 +153,7 @@ export default {
       page: 1, // 页码
       limit: 3, // 每页条数
       visible: false, // 对话框显示&隐藏
+      loading: false,
       trademarkForm: {
         // 表单数据
         tmName: "",
@@ -226,7 +232,11 @@ export default {
       // 清空表单的校验
       this.$refs.trademarkForm && this.$refs.trademarkForm.clearValidate();
       this.visible = true;
-      this.trademarkForm = {};
+      // 清空（从修改 - 添加要清空修改的数据）
+      this.trademarkForm = {
+        tmName: "",
+        logoUrl: "",
+      };
     },
     update(row) {
       /*
@@ -328,6 +338,7 @@ export default {
     // },
     // 请求分页列表数据
     async getPageList(page, limit) {
+      this.loading = true;
       const result = await this.$API.trademark.getPageList(page, limit);
       if (result.code === 200) {
         this.$message.success("获取品牌分页列表成功");
@@ -338,6 +349,7 @@ export default {
       } else {
         this.$message.error("获取品牌分页列表失败");
       }
+      this.loading = false;
     },
   },
   mounted() {
