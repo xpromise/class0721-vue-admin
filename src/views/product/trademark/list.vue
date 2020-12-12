@@ -1,8 +1,6 @@
 <template>
   <div>
-    <el-button type="primary" @click="visible = true" icon="el-icon-plus"
-      >添加</el-button
-    >
+    <el-button type="primary" @click="add" icon="el-icon-plus">添加</el-button>
     <!--
       :count="count"
       v-bind:count="count" 单向数据流 / 强制绑定数据
@@ -24,7 +22,8 @@
       </el-table-column>
       <el-table-column prop="tmName" label="品牌名称"> </el-table-column>
       <el-table-column label="品牌LOGO">
-        <template slot-scope="scope">
+        <!-- <template slot-scope="scope"> -->
+        <template v-slot="scope">
           <!-- {{ JSON.stringify(scope) }} -->
           <!--
             scope代表所有数据
@@ -34,8 +33,10 @@
         </template>
       </el-table-column>
       <el-table-column label="操作">
-        <template>
-          <el-button type="warning" icon="el-icon-edit">修改</el-button>
+        <template v-slot="{ row }">
+          <el-button type="warning" icon="el-icon-edit" @click="update(row)"
+            >修改</el-button
+          >
           <el-button type="danger" icon="el-icon-delete">删除</el-button>
         </template>
       </el-table-column>
@@ -79,7 +80,11 @@
     >
     </el-pagination>
 
-    <el-dialog title="添加品牌" :visible.sync="visible" width="50%">
+    <el-dialog
+      :title="`${trademarkForm.id ? '修改' : '添加'}品牌`"
+      :visible.sync="visible"
+      width="50%"
+    >
       <el-form
         :model="trademarkForm"
         :rules="rules"
@@ -163,6 +168,27 @@ export default {
     };
   },
   methods: {
+    add() {
+      this.visible = true;
+      this.trademarkForm = {};
+    },
+    update(row) {
+      /*
+        const a = [{x: 1}];
+        const b = a[0];
+        b.x = 2;
+
+        trademarkList: [row]
+        trademarkForm = row
+        trademarkForm.x = 2
+      */
+      // 显示对话框
+      this.visible = true;
+      // row 代表当前行的数据 {}
+      // this.trademarkForm = row; // 地址值一样，修改trademarkForm会导致trademarkList发生变化
+      this.trademarkForm = { ...row };
+      // this.trademarkForm = JSON.parse(JSON.stringify(row));
+    },
     // updateCount() {
     //   this.count++;
     // },
@@ -171,14 +197,38 @@ export default {
       // 校验表单
       this.$refs[form].validate(async (valid) => {
         if (valid) {
+          const { trademarkForm } = this;
+          // 代表是否是更新
+          const isUpdate = !!trademarkForm.id;
+
+          // 如果是修改需要验证
+          if (isUpdate) {
+            const tm = this.trademarkList.find(
+              (tm) => tm.id === trademarkForm.id
+            );
+
+            if (
+              tm.tmName === trademarkForm.tmName &&
+              tm.logoUrl === trademarkForm.logoUrl
+            ) {
+              this.$message.warning("不能提交与之前一样的数据");
+              return;
+            }
+          }
+
           // 表单校验通过
           // console.log(this.trademarkForm);
           // 发送请求
-          const result = await this.$API.trademark.addTrademark(
-            this.trademarkForm
-          );
+          let result;
+
+          if (isUpdate) {
+            result = await this.$API.trademark.updateTrademark(trademarkForm);
+          } else {
+            result = await this.$API.trademark.addTrademark(trademarkForm);
+          }
+
           if (result.code === 200) {
-            this.$message.success("添加品牌数据成功~");
+            this.$message.success(`${isUpdate ? "修改" : "添加"}品牌数据成功~`);
             this.visible = false; // 隐藏对话框
             this.getPageList(this.page, this.limit); // 请求加载新数据
           } else {
