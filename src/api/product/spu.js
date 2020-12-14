@@ -15,15 +15,6 @@ export default {
       }
     });
   },
-  /*
-  获取销售属性列表
-  */
-  getSaleAttrList() {
-    return request({
-      url: `${api_name}/baseSaleAttrList`,
-      method: "GET"
-    });
-  },
 
   /*
   删除SPU
@@ -52,6 +43,46 @@ export default {
       url: `${api_name}/updateSpuInfo`,
       method: "POST",
       data: spu
+    });
+  },
+
+  /*
+  获取所有品牌数据
+  */
+  getTrademarkList() {
+    return request({
+      url: `${api_name}/baseTrademark/getTrademarkList`,
+      method: "GET"
+    });
+  },
+
+  /*
+  获取SPU的图片列表
+  */
+  getSpuImageList(spuId) {
+    return request({
+      url: `${api_name}/spuImageList/${spuId}`,
+      method: "GET"
+    });
+  },
+
+  /*
+  获取SPU的销售属性列表
+  */
+  getSpuSaleAttrList(spuId) {
+    return request({
+      url: `${api_name}/spuSaleAttrList/${spuId}`,
+      method: "GET"
+    });
+  },
+
+  /*
+  获取所有销售属性列表
+  */
+  getSaleAttrList() {
+    return request({
+      url: `${api_name}/baseSaleAttrList`,
+      method: "GET"
     });
   }
 };

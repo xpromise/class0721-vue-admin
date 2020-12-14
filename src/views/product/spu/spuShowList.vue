@@ -13,9 +13,14 @@
       <el-table-column prop="spuName" label="SPU名称"> </el-table-column>
       <el-table-column prop="description" label="SPU描述"> </el-table-column>
       <el-table-column label="操作">
-        <template>
+        <template slot-scope="{ row }">
           <el-button type="primary" icon="el-icon-plus" size="mini"></el-button>
-          <el-button type="primary" icon="el-icon-edit" size="mini"></el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-edit"
+            size="mini"
+            @click="$emit('showUpdateList', row)"
+          ></el-button>
           <el-button type="info" icon="el-icon-info" size="mini"></el-button>
           <el-button
             type="danger"
