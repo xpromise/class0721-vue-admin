@@ -1,10 +1,14 @@
 <template>
   <div>
-    <Category
+    <!-- 自定义事件 -->
+    <!-- <Category
       @change="getAttrList"
       @clearList="clearList"
       :disabled="!isShowList"
-    />
+    /> -->
+
+    <!-- 全局事件总线事件 -->
+    <Category :disabled="!isShowList" />
 
     <el-card v-show="isShowList" style="margin-top: 20px">
       <el-button
@@ -235,6 +239,15 @@ export default {
         this.$message.error(result.message);
       }
     },
+  },
+  mounted() {
+    this.$bus.$on("change", this.getAttrList);
+    this.$bus.$on("clearList", this.clearList);
+  },
+  beforeDestroy() {
+    // 通常情况下：清除绑定的全局事件
+    this.$bus.$off("change", this.getAttrList);
+    this.$bus.$off("clearList", this.clearList);
   },
   components: {
     Category,

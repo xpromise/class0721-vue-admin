@@ -1,14 +1,14 @@
-import Vue from 'vue'
+import Vue from "vue";
 
 // 引入专门的reset.css模块
-import 'normalize.css/normalize.css'
+import "normalize.css/normalize.css";
 
-import './plugins/vcharts'
+import "./plugins/vcharts";
 
 // 完整引入element-ui
 // import ElementUI from 'element-ui'
 // import 'element-ui/lib/theme-chalk/index.css'
-import './plugins/elements'
+import "./plugins/elements";
 
 // 引入es6模块化的测试模块
 
@@ -25,40 +25,40 @@ import './plugins/elements'
 // console.log('result', a, b, c, d, e);
 
 // 引入全局样式
-import '@/styles/index.scss'
+import "@/styles/index.scss";
 
-import App from './App'
+import App from "./App";
 
 // 引入vuex的store对象模块
-import store from './store'
+import store from "./store";
 
 // 引入vue-router的router对象模块
-import router from './router'
+import router from "./router";
 
 // 引入svg-icon的主模块
-import '@/icons'
+import "@/icons";
 
 // 引入权限控制的主模块
-import '@/permission' // permission control
+import "@/permission"; // permission control
 
 // 引入按钮级别权限控制的工具函数
-import { hasBtnPermission } from './utils/permission'
+import { hasBtnPermission } from "./utils/permission";
 
 // 引入包含所有接口请求函数模块的API对象
-import * as API from '@/api'
+import * as API from "@/api";
 
 // 引入准备全局注册的组件
-import HintButton from '@/components/HintButton'
-import CategorySelector from '@/components/CategorySelector'
+import HintButton from "@/components/HintButton";
+import CategorySelector from "@/components/CategorySelector";
 
 // 注册全局组件
-Vue.component('HintButton', HintButton)
-Vue.component('CategorySelector', CategorySelector)
+Vue.component("HintButton", HintButton);
+Vue.component("CategorySelector", CategorySelector);
 
 // 挂载到Vue原型对象上, 以便组件中直接可见
-Vue.prototype.$hasBP = hasBtnPermission
-Vue.prototype.$API = API
-Vue.prototype.$BASE_API = process.env.VUE_APP_BASE_API
+Vue.prototype.$hasBP = hasBtnPermission;
+Vue.prototype.$API = API;
+Vue.prototype.$BASE_API = process.env.VUE_APP_BASE_API;
 
 // 引入mockjs的配置, 不使用
 /**
@@ -77,11 +77,15 @@ Vue.prototype.$BASE_API = process.env.VUE_APP_BASE_API
 // 声明使用element插件
 // Vue.use(ElementUI)
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 new Vue({
-  el: '#app',
+  beforeCreate() {
+    // 添加全局事件总线对象
+    Vue.prototype.$bus = this;
+  },
+  el: "#app",
   router,
   store,
   render: h => h(App)
-})
+});

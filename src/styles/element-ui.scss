@@ -15,7 +15,6 @@
   display: none;
 }
 
-
 // to fixed https://github.com/ElemeFE/element/issues/2461
 .el-dialog {
   transform: none;
@@ -39,11 +38,20 @@
 // dropdown
 .el-dropdown-menu {
   a {
-    display: block
+    display: block;
   }
 }
 
 // to fix el-date-picker css style
 .el-range-separator {
   box-sizing: content-box;
+}
+
+// 分液器样式
+.pagination {
+  text-align: right;
+}
+
+.el-pagination__sizes {
+  margin-left: 250px;
 }
