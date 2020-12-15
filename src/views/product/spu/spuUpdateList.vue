@@ -122,6 +122,7 @@ export default {
     formatImageList() {
       return this.imageList.map((img) => {
         return {
+          uid: img.uid || img.id,
           name: img.imgName,
           url: img.imgUrl,
         };
@@ -160,6 +161,7 @@ export default {
     // 上传图片成功的回调
     handleAvatarSuccess(res, file) {
       this.imageList.push({
+        uid: file.uid,
         imgName: file.name, // 文件名称
         imgUrl: res.data, // 图片地址
         spuId: this.spu.id, // SPU id
