@@ -1,6 +1,14 @@
 <template>
   <el-card style="margin-top: 20px">
-    <el-form label-width="80px" :model="spu">
+    <!--
+      表单校验：
+        1. 整体form表单中
+        2. 通过prop属性来定义表单项名称
+        3. 定义表单校验规则
+          - 在data中定义rules
+          - 绑定给form
+     -->
+    <el-form label-width="80px" :model="spu" :rules="rules" ref="spuForm">
       <el-form-item label="SPU名称" prop="spuName">
         <el-input placeholder="请输入SPU名称" v-model="spu.spuName"></el-input>
       </el-form-item>
@@ -21,7 +29,7 @@
           v-model="spu.description"
         ></el-input>
       </el-form-item>
-      <el-form-item label="SPU图片">
+      <el-form-item label="SPU图片" prop="imageList">
         <el-upload
           accept="image/*"
           class="avatar-uploader"
@@ -72,7 +80,7 @@
           <el-table-column label="属性值列表">
             <template v-slot="{ row }">
               <el-tag
-                @close="() => {}"
+                @close="delTag(attrVal.id, row)"
                 closable
                 style="margin-right: 5px"
                 v-for="attrVal in row.spuSaleAttrValueList"
@@ -99,18 +107,23 @@
             </template>
           </el-table-column>
           <el-table-column label="操作" width="150">
-            <template>
-              <el-button
-                type="danger"
-                icon="el-icon-delete"
-                size="mini"
-              ></el-button>
+            <template v-slot="{ row, $index }">
+              <el-popconfirm
+                @onConfirm="delSpuSaleAttr($index)"
+                :title="`确定删除 ${row.saleAttrName} 吗？`"
+                ><el-button
+                  type="danger"
+                  icon="el-icon-delete"
+                  size="mini"
+                  slot="reference"
+                ></el-button
+              ></el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="save">保存</el-button>
         <el-button>取消</el-button>
       </el-form-item>
     </el-form>
@@ -137,6 +150,14 @@ export default {
       saleAttrList: [], // 所有销售属性列表
       spuSaleAttrList: [], // 当前SPU销售属性列表
       saleAttrValueText: "",
+      rules: {
+        // 表单校验规则对象
+        spuName: [{ required: true, message: "请输入SPU名称~" }],
+        tmId: [{ required: true, message: "请选择品牌~" }],
+        description: [{ required: true, message: "请输入SPU描述~" }],
+        imageList: [{ validator: this.imageListValidator, required: true }],
+        sale: [{ validator: this.saleValidator, required: true }],
+      },
     };
   },
   computed: {
@@ -164,6 +185,53 @@ export default {
     },
   },
   methods: {
+    imageListValidator(rule, value, callback) {
+      if (this.imageList.length > 0) {
+        // 校验通过
+        callback();
+        return;
+      }
+      // 校验失败
+      callback(new Error("请上传至少一张图片~"));
+    },
+    saleValidator(rule, value, callback) {
+      // 判断至少选择一个销售属性
+      if (this.spuSaleAttrList.length === 0) {
+        callback(new Error("请选择至少一个销售属性~"));
+        return;
+      }
+
+      // 判断销售属性中至少添加一个销售属性值
+      const isNotOk = this.spuSaleAttrList.some(
+        (sale) => sale.spuSaleAttrValueList.length === 0
+      );
+
+      if (isNotOk) {
+        callback(new Error("销售属性至少添加一个销售属性值, 请添加~"));
+        return;
+      }
+
+      callback();
+    },
+    save() {
+      this.$refs.spuForm.validate((valid) => {
+        if (valid) {
+          console.log("校验通过~");
+        }
+      });
+    },
+    // 删除整个销售属性
+    delSpuSaleAttr(index) {
+      console.log(index);
+      this.spuSaleAttrList.splice(index, 1);
+    },
+    // 删除单个销售属性值
+    delTag(tagId, row) {
+      row.spuSaleAttrValueList = row.spuSaleAttrValueList.filter(
+        (saleAttrValue) => saleAttrValue.id !== tagId
+      );
+    },
+    // 显示编辑输入框
     edit(row) {
       this.$set(row, "edit", true);
       this.$nextTick(() => {
