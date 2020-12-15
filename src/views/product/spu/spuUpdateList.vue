@@ -83,10 +83,10 @@
           <el-table-column label="属性值列表">
             <template v-slot="{ row }">
               <el-tag
-                @close="delTag(attrVal.id, row)"
+                @close="delTag(i, row)"
                 closable
                 style="margin-right: 5px"
-                v-for="attrVal in row.spuSaleAttrValueList"
+                v-for="(attrVal, i) in row.spuSaleAttrValueList"
                 :key="attrVal.id"
                 >{{ attrVal.saleAttrValueName }}</el-tag
               >
@@ -94,8 +94,8 @@
                 v-if="row.edit"
                 size="mini"
                 style="width: 100px"
-                @blur="editCompleted(row, $index)"
-                @keyup.enter.native="editCompleted(row, $index)"
+                @blur="editCompleted(row)"
+                @keyup.enter.native="editCompleted(row)"
                 autofocus
                 ref="input"
                 v-model="saleAttrValueText"
@@ -127,7 +127,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="save">保存</el-button>
-        <el-button>取消</el-button>
+        <el-button @click="$emit('showList', spu.category3Id)">取消</el-button>
       </el-form-item>
     </el-form>
 
@@ -138,6 +138,7 @@
 </template>
 
 <script>
+import { category } from "@/api";
 export default {
   name: "SpuUpdateList",
   props: {
@@ -217,9 +218,64 @@ export default {
       callback();
     },
     save() {
-      this.$refs.spuForm.validate((valid) => {
+      this.$refs.spuForm.validate(async (valid) => {
         if (valid) {
           console.log("校验通过~");
+          /*
+            {
+              "category3Id": 0,  // 三级分类id
+              "description": "string", // SPU描述
+              "id": 0, // SPU id
+              "spuImageList": [ // 图片列表
+                {
+                  "id": 0,
+                  "imgName": "string",
+                  "imgUrl": "string",
+                  "spuId": 0
+                }
+              ],
+              "spuName": "string", // SPU名称
+              "spuSaleAttrList": [ // SPU销售属性列表
+                {
+                  "baseSaleAttrId": 0,
+                  "id": 0,
+                  "saleAttrName": "string",
+                  "spuId": 0,
+                  "spuSaleAttrValueList": [
+                    {
+                      "baseSaleAttrId": 0,
+                      "id": 0,
+                      "isChecked": "string",
+                      "saleAttrName": "string",
+                      "saleAttrValueName": "string",
+                      "spuId": 0
+                    }
+                  ]
+                }
+              ],
+              "tmId": 0 // 品牌id
+            }
+
+          */
+          // 收集数据
+          const spu = {
+            ...this.spu, // 展开数据
+            spuImageList: this.imageList,
+            spuSaleAttrList: this.spuSaleAttrList,
+          };
+
+          // 发送请求
+          const result = await this.$API.spu.updateSpu(spu);
+          if (result.code === 200) {
+            // 切换回showList
+            this.$emit("showList", this.spu.category3Id);
+            // this.$nextTick(() => {
+            //   this.$bus.$emit("change", { category3Id: this.spu.category3Id });
+            // });
+            this.$message.success("更新SPU成功~");
+          } else {
+            this.$message.error(result.message);
+          }
         }
       });
     },
@@ -229,10 +285,8 @@ export default {
       this.spuSaleAttrList.splice(index, 1);
     },
     // 删除单个销售属性值
-    delTag(tagId, row) {
-      row.spuSaleAttrValueList = row.spuSaleAttrValueList.filter(
-        (saleAttrValue) => saleAttrValue.id !== tagId
-      );
+    delTag(index, row) {
+      row.spuSaleAttrValueList.splice(index, 1);
     },
     // 显示编辑输入框
     edit(row) {
@@ -242,7 +296,7 @@ export default {
       });
     },
     // 添加销售属性值
-    editCompleted(row, index) {
+    editCompleted(row) {
       if (this.saleAttrValueText) {
         row.spuSaleAttrValueList.push({
           baseSaleAttrId: row.baseSaleAttrId,
