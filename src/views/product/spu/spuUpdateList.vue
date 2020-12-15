@@ -40,19 +40,25 @@
       <!--
         prop="saleAttrId" 将来作为表单校验
        -->
-      <el-form-item label="销售属性" prop="saleAttrId">
+      <el-form-item label="销售属性" prop="sale">
         <el-select
           :placeholder="`还剩${filterSaleAttrList.length}个未选择`"
-          v-model="spu.saleAttrId"
+          v-model="spu.sale"
         >
           <el-option
             v-for="sale in filterSaleAttrList"
             :label="sale.name"
-            :value="sale.id"
+            :value="`${sale.id}-${sale.name}`"
             :key="sale.id"
           ></el-option>
         </el-select>
-        <el-button type="primary" icon="el-icon-plus">添加销售属性</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          :disabled="!spu.sale"
+          @click="addSpuSaleAttr"
+          >添加销售属性</el-button
+        >
         <el-table
           :data="spuSaleAttrList"
           border
@@ -66,20 +72,34 @@
           <el-table-column label="属性值列表">
             <template v-slot="{ row }">
               <el-tag
+                @close="() => {}"
+                closable
                 style="margin-right: 5px"
                 v-for="attrVal in row.spuSaleAttrValueList"
                 :key="attrVal.id"
                 >{{ attrVal.saleAttrValueName }}</el-tag
               >
+              <el-input
+                v-if="row.edit"
+                size="mini"
+                style="width: 100px"
+                @blur="editCompleted(row, $index)"
+                @keyup.enter.native="editCompleted(row, $index)"
+                autofocus
+                ref="input"
+                v-model="saleAttrValueText"
+              ></el-input>
+              <el-button
+                v-else
+                icon="el-icon-plus"
+                size="mini"
+                @click="edit(row)"
+                >添加</el-button
+              >
             </template>
           </el-table-column>
           <el-table-column label="操作" width="150">
             <template>
-              <el-button
-                type="warning"
-                icon="el-icon-edit"
-                size="mini"
-              ></el-button>
               <el-button
                 type="danger"
                 icon="el-icon-delete"
@@ -116,12 +136,17 @@ export default {
       visible: false, // 图片对话框显示&隐藏
       saleAttrList: [], // 所有销售属性列表
       spuSaleAttrList: [], // 当前SPU销售属性列表
+      saleAttrValueText: "",
     };
   },
   computed: {
+    // 格式化图片数据
     formatImageList() {
       return this.imageList.map((img) => {
         return {
+          // 一上来请求回来的数据只有id
+          // 新添加的数据不能设置id（由后台设置），所以写的是uid
+          // 总之，id一定由后台服务器生成
           uid: img.uid || img.id,
           name: img.imgName,
           url: img.imgUrl,
@@ -139,6 +164,78 @@ export default {
     },
   },
   methods: {
+    edit(row) {
+      this.$set(row, "edit", true);
+      this.$nextTick(() => {
+        this.$refs.input.focus();
+      });
+    },
+    // 添加销售属性值
+    editCompleted(row, index) {
+      if (this.saleAttrValueText) {
+        row.spuSaleAttrValueList.push({
+          baseSaleAttrId: row.baseSaleAttrId,
+          saleAttrName: row.saleAttrName,
+          saleAttrValueName: this.saleAttrValueText,
+          spuId: row.spuId,
+        });
+        // 添加完成数据清空
+        this.saleAttrValueText = "";
+      }
+
+      row.edit = false;
+    },
+    // 添加销售属性
+    // addSpuSaleAttr() {
+    //   // 选中的销售属性id
+    //   const { saleAttrId, id } = this.spu;
+    //   // 去所有销售属性列表找到某个销售属性
+    //   const sale = this.saleAttrList.find((sale) => sale.id === saleAttrId);
+    //   /*
+    //     {
+    //         "baseSaleAttrId": 0, // 所有销售属性id
+    //         "id": 0, // 由后台生成
+    //         "saleAttrName": "string",  // 所有销售属性名称
+    //         "spuId": 0, // SPU id
+    //         "spuSaleAttrValueList": [
+    //           {
+    //             "baseSaleAttrId": 0,
+    //             "id": 0,
+    //             "isChecked": "string",
+    //             "saleAttrName": "string",
+    //             "saleAttrValueName": "string",
+    //             "spuId": 0
+    //           }
+    //         ]
+    //       }
+    //   */
+
+    //   // 将销售属性添加到商品中
+    //   this.spuSaleAttrList.push({
+    //     baseSaleAttrId: sale.id, // 所有销售属性id
+    //     saleAttrName: sale.name, // 所有销售属性名称
+    //     spuId: id, // SPU id
+    //     spuSaleAttrValueList: [], // 销售属性值列表
+    //   });
+    //   // 清空选中的销售属性id
+    //   this.spu.saleAttrId = "";
+    // },
+
+    addSpuSaleAttr() {
+      // 选中的销售属性
+      const { sale, id } = this.spu;
+
+      const [baseSaleAttrId, saleAttrName] = sale.split("-");
+      // 将销售属性添加到商品中
+      this.spuSaleAttrList.push({
+        baseSaleAttrId: +baseSaleAttrId, // 所有销售属性id
+        saleAttrName, // 所有销售属性名称
+        spuId: id, // SPU id
+        spuSaleAttrValueList: [], // 销售属性值列表
+      });
+      // 清空选中的销售属性id
+      this.spu.sale = "";
+    },
     // 上次图片之前触发的回调
     beforeAvatarUpload(file) {
       // console.log(file);
