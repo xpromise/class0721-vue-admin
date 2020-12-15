@@ -23,12 +23,15 @@
       </el-form-item>
       <el-form-item label="SPU图片">
         <el-upload
+          accept="image/*"
           class="avatar-uploader"
           list-type="picture-card"
-          :file-list="imageList"
+          :file-list="formatImageList"
           :action="`${$BASE_API}/admin/product/fileUpload`"
           :on-preview="handlePictureCardPreview"
           :on-remove="handleRemove"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
         >
           <i class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
@@ -116,6 +119,14 @@ export default {
     };
   },
   computed: {
+    formatImageList() {
+      return this.imageList.map((img) => {
+        return {
+          name: img.imgName,
+          url: img.imgUrl,
+        };
+      });
+    },
     filterSaleAttrList() {
       return this.saleAttrList.filter((sale) => {
         // this.spuSaleAttrList.indexOf() // 只适用于数组中是基本类型
@@ -127,10 +138,37 @@ export default {
     },
   },
   methods: {
+    // 上次图片之前触发的回调
+    beforeAvatarUpload(file) {
+      // console.log(file);
+      const imgTypes = ["image/jpg", "image/png", "image/jpeg"];
+      // 检测文件类型
+      const isValidType = imgTypes.indexOf(file.type) > -1;
+      // 检测文件大小
+      const isLt = file.size / 1024 < 50;
+
+      if (!isValidType) {
+        this.$message.error("上传品牌LOGO只能是 JPG 或 PNG 格式!");
+      }
+      if (!isLt) {
+        this.$message.error("上传品牌LOGO大小不能超过 50 kb!");
+      }
+      // 返回值为true，代表可以上传
+      // 返回值为false，代表不可以上传
+      return isValidType && isLt;
+    },
+    // 上传图片成功的回调
+    handleAvatarSuccess(res, file) {
+      this.imageList.push({
+        imgName: file.name, // 文件名称
+        imgUrl: res.data, // 图片地址
+        spuId: this.spu.id, // SPU id
+      });
+    },
     // 处理删除
     handleRemove(file, fileList) {
       // console.log(file, fileList);
-      this.imageList = this.imageList.filter((img) => img.id !== file.id);
+      this.imageList = this.imageList.filter((img) => img.imgUrl !== file.url);
     },
     // 处理图片预览
     handlePictureCardPreview(file) {
@@ -156,13 +194,7 @@ export default {
         // 处理数据
         // [{imgName: '', imgUrl: ''}]
         // [{name: '', url: ''}]
-        this.imageList = result.data.map((img) => {
-          return {
-            id: img.id,
-            name: img.imgName,
-            url: img.imgUrl,
-          };
-        });
+        this.imageList = result.data;
       } else {
         this.$message.error(result.message);
       }
