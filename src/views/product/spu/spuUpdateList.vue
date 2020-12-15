@@ -7,6 +7,9 @@
         3. 定义表单校验规则
           - 在data中定义rules
           - 绑定给form
+        4. 校验表单
+          - 给form绑定ref
+          - this.$refs.spuForm.validate 校验表单
      -->
     <el-form label-width="80px" :model="spu" :rules="rules" ref="spuForm">
       <el-form-item label="SPU名称" prop="spuName">
