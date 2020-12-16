@@ -5,7 +5,7 @@
       @clearList 当1级分类和2级分类触发的时候触发，清空列表
       :disabled 决定select是否可以使用
      -->
-    <SkuList v-if="isShowSkuList" :skuItem="skuItem"/>
+    <SkuList v-if="isShowSkuList" :spuItem="spuItem"/>
 
     <div v-else>
       <Category :disabled="!isShowList" />
@@ -35,13 +35,13 @@ export default {
       isShowList: true,
       item: {},
       isShowSkuList: false,
-      skuItem: {},
+      spuItem: {},
     };
   },
   methods: {
     showSpuList(row) {
       this.isShowSkuList = true;
-      this.skuItem = { ...row };
+      this.spuItem = { ...row };
     },
     showUpdateList(row) {
       this.isShowList = false;
