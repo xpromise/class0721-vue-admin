@@ -1,6 +1,12 @@
 <template>
   <el-card style="margin-top: 20px">
-    <el-button type="primary" icon="el-icon-plus">添加SPU</el-button>
+    <el-button
+      type="primary"
+      icon="el-icon-plus"
+      :disabled="!category.category3Id"
+      @click="$emit('showUpdateList', { category3Id: category.category3Id })"
+      >添加SPU</el-button
+    >
 
     <el-table
       :data="spuList"
