@@ -20,7 +20,12 @@
       <el-table-column prop="description" label="SPU描述"> </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="{ row }">
-          <el-button type="primary" icon="el-icon-plus" size="mini"></el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-plus"
+            size="mini"
+            @click="$emit('showSpuList', { ...row, ...category })"
+          ></el-button>
           <el-button
             type="primary"
             icon="el-icon-edit"
