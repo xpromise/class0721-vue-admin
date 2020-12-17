@@ -149,12 +149,12 @@ export default {
         attrName: "",
         attrValueList: [],
       },
-      category: {
-        // 代表三个分类id数据
-        category1Id: "",
-        category2Id: "",
-        category3Id: "",
-      },
+      // category: {
+      //   // 代表三个分类id数据
+      //   category1Id: "",
+      //   category2Id: "",
+      //   category3Id: "",
+      // },
     };
   },
   computed: {

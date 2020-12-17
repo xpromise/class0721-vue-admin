@@ -50,9 +50,10 @@ export default {
     showList(category) {
       this.isShowList = true;
       // 等ShowList组件加载完成，在触发事件
-      this.$nextTick(() => {
-        this.$bus.$emit("change", category);
-      });
+      // this.$nextTick(() => {
+      //   this.$bus.$emit("change", category);
+      // });
+      // 通知ShowList重新发送请求
     },
   },
   components: {

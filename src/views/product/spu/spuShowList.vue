@@ -80,9 +80,12 @@ export default {
     }),
   },
   watch: {
-    "category.category3Id"(category3Id) {
-      if (!category3Id) return;
-      this.getPageList(this.page, this.limit);
+    "category.category3Id": {
+      handler(category3Id) {
+        if (!category3Id) return;
+        this.getPageList(this.page, this.limit);
+      },
+      immediate: true, // 一上来触发一次
     },
     "category.category1Id"() {
       this.clearList();
@@ -123,7 +126,6 @@ export default {
       this.page = 1;
       this.limit = 3;
       this.total = 0;
-      this.category.category3Id = "";
     },
   },
   mounted() {
