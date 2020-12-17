@@ -5,7 +5,7 @@
       @clearList 当1级分类和2级分类触发的时候触发，清空列表
       :disabled 决定select是否可以使用
      -->
-    <SkuList v-if="isShowSkuList" :spuItem="spuItem"/>
+    <SkuList v-if="isShowSkuList" :spuItem="spuItem" />
 
     <div v-else>
       <Category :disabled="!isShowList" />
@@ -47,11 +47,11 @@ export default {
       this.isShowList = false;
       this.item = { ...row };
     },
-    showList(category3Id) {
+    showList(category) {
       this.isShowList = true;
       // 等ShowList组件加载完成，在触发事件
       this.$nextTick(() => {
-        this.$bus.$emit("change", { category3Id });
+        this.$bus.$emit("change", category);
       });
     },
   },

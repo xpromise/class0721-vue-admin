@@ -51,6 +51,8 @@
 </template>
 
 <script>
+import { mapState, mapActions, mapMutations } from "vuex";
+
 export default {
   name: "Category",
   props: ["disabled"],
@@ -61,57 +63,47 @@ export default {
         category2Id: "",
         category3Id: "",
       },
-      category1List: [], // 1级分类数据
-      category2List: [],
-      category3List: [],
+      // category1List: [], // 1级分类数据
+      // category2List: [],
+      // category3List: [],
     };
   },
+  computed: {
+    ...mapState({
+      category1List: (state) => state.category.category1List,
+      category2List: (state) => state.category.category2List,
+      category3List: (state) => state.category.category3List,
+    }),
+  },
   methods: {
+    ...mapMutations(["category/SET_CATEGORY3_ID"]),
+    ...mapActions([
+      "category/getCategory1List",
+      "category/getCategory2List",
+      "category/getCategory3List",
+    ]),
     // 处理输入框的change事件
     async handleSelectChange1(category1Id) {
-      this.category2List = [];
-      this.category3List = [];
       this.category.category2Id = "";
       this.category.category3Id = "";
 
-      const result = await this.$API.attrs.getCategorys2(category1Id);
-      if (result.code === 200) {
-        this.category2List = result.data;
-      } else {
-        this.$message.error(result.message);
-      }
+      this["category/getCategory2List"](category1Id);
       // 清空父组件的数据
-      this.$bus.$emit("clearList");
+      // this.$bus.$emit("clearList");
     },
     async handleSelectChange2(category2Id) {
       this.category.category3Id = "";
-      this.category3List = [];
 
-      const result = await this.$API.attrs.getCategorys3(category2Id);
-      if (result.code === 200) {
-        this.category3List = result.data;
-      } else {
-        this.$message.error(result.message);
-      }
+      this["category/getCategory3List"](category2Id);
       // 清空父组件的数据
-      this.$bus.$emit("clearList");
+      // this.$bus.$emit("clearList");
     },
     async handleSelectChange3(category3Id) {
-      const category = {
-        ...this.category,
-        category3Id,
-      };
-
-      this.$bus.$emit("change", category);
+      this["category/SET_CATEGORY3_ID"](category3Id);
     },
   },
   async mounted() {
-    const result = await this.$API.attrs.getCategorys1();
-    if (result.code === 200) {
-      this.category1List = result.data;
-    } else {
-      this.$message.error(result.message);
-    }
+    this["category/getCategory1List"]();
   },
 };
 </script>
