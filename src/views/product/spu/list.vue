@@ -56,6 +56,9 @@ export default {
       // 通知ShowList重新发送请求
     },
   },
+  beforeDestroy() {
+    this.$store.commit("category/RESET_CATEGORY_ID");
+  },
   components: {
     Category,
     SpuShowList,

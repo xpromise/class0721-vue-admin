@@ -265,6 +265,8 @@ export default {
     // 通常情况下：清除绑定的全局事件
     // this.$bus.$off("change", this.getAttrList);
     // this.$bus.$off("clearList", this.clearList);
+
+    this.$store.commit("category/RESET_CATEGORY_ID");
   },
   components: {
     Category,

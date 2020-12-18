@@ -92,6 +92,11 @@ export default {
     },
     SET_CATEGORY3_ID(state, category3Id) {
       state.category.category3Id = category3Id;
+    },
+    RESET_CATEGORY_ID(state) {
+      state.category.category1Id = "";
+      state.category.category2Id = "";
+      state.category.category3Id = "";
     }
   },
   getters: {}
