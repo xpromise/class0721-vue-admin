@@ -1,7 +1,7 @@
 <template>
   <el-card>
-    <el-form label-width="100px" :model="sku" :rules="rules" ref="spuForm">
-      <el-form-item label="SPU名称" prop="spuName">
+    <el-form label-width="100px" :model="sku" :rules="rules" ref="skuForm">
+      <el-form-item label="SPU名称">
         <span>{{ spu.spuName }}</span>
       </el-form-item>
       <el-form-item label="SKU名称" prop="skuName">
@@ -15,6 +15,7 @@
           controls-position="right"
           v-model="sku.price"
           :min="0"
+          :max="200000000000"
         ></el-input-number>
       </el-form-item>
       <el-form-item label="重量(千克)" prop="weight">
@@ -24,22 +25,27 @@
           controls-position="right"
           v-model="sku.weight"
           :min="0"
+          :max="200000000000"
         ></el-input-number>
       </el-form-item>
-      <el-form-item label="规格描述" prop="description">
+      <el-form-item label="规格描述" prop="skuDesc">
         <el-input
           type="textarea"
           placeholder="请输入规格描述"
-          v-model="sku.description"
+          v-model="sku.skuDesc"
         ></el-input>
       </el-form-item>
-      <el-form-item label="平台属性">
-        <div v-for="(attr, index) in attrList" :key="attr.id">
-          <span>{{ attr.attrName }}</span>
-          <el-form-item style="display: inline-block" prop="skuAttrValueList">
+      <el-form-item label="平台属性" prop="skuAttrValueList">
+        <div
+          v-for="(attr, index) in attrList"
+          :key="attr.id"
+          class="skulist-select-container"
+        >
+          <el-form-item :label="attr.attrName" style="display: inline-block">
             <el-select
               placeholder="请选择"
               v-model="sku.skuAttrValueList[index]"
+              @change="clearValidate('skuAttrValueList')"
             >
               <el-option
                 v-for="value in attr.attrValueList"
@@ -51,20 +57,20 @@
           </el-form-item>
         </div>
       </el-form-item>
-      <el-form-item label="销售属性">
+      <el-form-item label="销售属性" prop="skuSaleAttrValueList">
         <div
           class="skulist-select-container"
           v-for="(sale, index) in spuSaleAttrList"
           :key="sale.id"
         >
-          <span>{{ sale.saleAttrName }}</span>
           <el-form-item
             style="display: inline-block"
-            prop="skuSaleAttrValueList"
+            :label="sale.saleAttrName"
           >
             <el-select
               placeholder="请选择"
               v-model="sku.skuSaleAttrValueList[index]"
+              @change="clearValidate('skuSaleAttrValueList')"
             >
               <el-option
                 v-for="value in sale.spuSaleAttrValueList"
@@ -76,15 +82,17 @@
           </el-form-item>
         </div>
       </el-form-item>
-      <el-form-item label="图片列表">
+      <el-form-item label="图片列表" prop="skuImageList">
         <el-table
           ref="multipleTable"
           border
           :data="imageList"
           style="width: 100%; margin: 20px 0"
           @selection-change="handleSelectionChange"
+          row-key="id"
         >
-          <el-table-column type="selection" width="55"> </el-table-column>
+          <el-table-column type="selection" reserve-selection width="55">
+          </el-table-column>
           <el-table-column label="图片">
             <template slot-scope="scope"
               ><img
@@ -109,7 +117,7 @@
         </el-table>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="save">保存</el-button>
         <el-button>取消</el-button>
       </el-form-item>
     </el-form>
@@ -126,7 +134,40 @@ export default {
   data() {
     return {
       spu: this.spuItem, // spu数据
-      rules: {}, // 表单验证规则
+      rules: {
+        // 表单验证规则
+        skuName: [
+          { required: true, message: "请输入sku名称", trigger: "change" },
+        ],
+        price: [
+          { required: true, message: "请输入sku价格", trigger: "change" },
+          // { min: 0, message: "输入的价格不能小于0", trigger: "blur" },
+        ],
+        weight: [
+          { required: true, message: "请输入sku重量", trigger: "change" },
+          // {
+          //   min: 0,
+          //   max: 200000,
+          //   message: "输入的重量不能小于0",
+          //   trigger: "blur",
+          // },
+        ],
+        skuDesc: [
+          { required: true, message: "请输入sku描述", trigger: "change" },
+        ],
+        skuAttrValueList: [
+          {
+            required: true,
+            validator: this.skuAttrValueListValidator,
+          },
+        ],
+        skuSaleAttrValueList: [
+          { required: true, validator: this.skuSaleAttrValueListValidator },
+        ],
+        skuImageList: [
+          { required: true, validator: this.skuImageListValidator },
+        ],
+      },
       imageList: [], // 图片列表
       spuSaleAttrList: [], // 销售属性数据
       attrList: [], // 平台属性数据
@@ -144,7 +185,71 @@ export default {
     }),
   },
   methods: {
+    clearValidate(prop) {
+      // 清空表单校验
+      this.$refs.skuForm.clearValidate(prop);
+    },
+    save() {
+      this.$refs.skuForm.validate((valid) => {
+        if (valid) {
+          console.log("校验通过~");
+        }
+      });
+    },
+    skuImageListValidator(rule, value, callback) {
+      const {
+        sku: { skuImageList },
+      } = this;
+
+      if (skuImageList.length === 0) {
+        callback(new Error("请选择至少一张图片~"));
+        return;
+      }
+
+      if (!skuImageList.some((img) => img.isDefault)) {
+        callback(new Error("请设置一张默认图片~"));
+        return;
+      }
+
+      callback();
+    },
+    skuSaleAttrValueListValidator(rule, value, callback) {
+      const {
+        spuSaleAttrList,
+        sku: { skuSaleAttrValueList },
+      } = this;
+
+      if (
+        skuSaleAttrValueList.length !== spuSaleAttrList.length ||
+        skuSaleAttrValueList.some((sale) => !sale)
+      ) {
+        callback(new Error("请对所有销售属性进行选择~"));
+        return;
+      }
+
+      callback();
+    },
+    skuAttrValueListValidator(rule, value, callback) {
+      const {
+        attrList,
+        sku: { skuAttrValueList },
+      } = this;
+
+      console.log(111);
+
+      if (
+        skuAttrValueList.length !== attrList.length ||
+        skuAttrValueList.some((attr) => !attr)
+      ) {
+        callback(new Error("请对所有平台属性进行选择~"));
+        return;
+      }
+
+      callback();
+    },
     setDefault(i) {
+      this.clearValidate("skuImageList");
+
       this.imageList = this.imageList.map((img, index) => {
         return {
           ...img,
@@ -153,24 +258,6 @@ export default {
       });
     },
     handleSelectionChange(skuImageList) {
-      // const imageList = skuImageList.length
-      //   ? skuImageList
-      //   : this.sku.skuImageList;
-
-      // this.imageList = this.imageList.map((img, index) => {
-      //   const isCheck = imageList.find((skuImg) => {
-      //     return skuImg.id === img.id;
-      //   })
-      //     ? true
-      //     : false;
-
-      //   console.log(isCheck);
-      //   return {
-      //     ...img,
-      //     isCheck,
-      //   };
-      // });
-
       this.sku.skuImageList = skuImageList;
     },
     // 获取所有图片数据
@@ -230,5 +317,6 @@ export default {
 
 .skulist-select-container
   display: inline-block
-  margin-right: 20px
+  width: 30%
+  margin-bottom: 10px
 </style>
