@@ -45,7 +45,9 @@ import "@/permission"; // permission control
 import { hasBtnPermission } from "./utils/permission";
 
 // 引入包含所有接口请求函数模块的API对象
-import * as API from "@/api";
+import API from "@/api";
+
+console.log(API);
 
 // 引入准备全局注册的组件
 import HintButton from "@/components/HintButton";
