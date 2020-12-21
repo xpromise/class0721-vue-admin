@@ -1,100 +1,38 @@
 <template>
-  <div :class="className" :style="{height:height,width:width}" />
+  <div style="width: 100%; height: 300px; overflow: hidden">
+    <ve-histogram
+      :data="chartData"
+      :settings="chartSettings"
+      :legend-visible="false"
+      height="400px"
+      style="margin-top: -50px"
+    ></ve-histogram>
+  </div>
 </template>
 
 <script>
-import echarts from 'echarts'
-// import 'echarts/theme/macarons' // echarts theme
-import resize from './mixins/resize'
-
-const animationDuration = 3000
-
 export default {
-  mixins: [resize],
-  props: {
-    className: {
-      type: String,
-      default: 'chart'
-    },
-    width: {
-      type: String,
-      default: '100%'
-    },
-    height: {
-      type: String,
-      default: '300px'
-    }
-  },
+  name: "BarChart",
   data() {
+    this.chartSettings = {
+      stack: { page: ["pageA", "pageB", "pageC"] }, // 什么数据会堆叠在一起
+      labelMap: {},
+    };
+
     return {
-      chart: null
-    }
+      chartData: {
+        columns: ["日期", "pageA", "pageB", "pageC"],
+        rows: [
+          { 日期: "周一", pageA: 1393, pageB: 1093, pageC: 1093 },
+          { 日期: "周二", pageA: 3530, pageB: 3230, pageC: 3230 },
+          { 日期: "周三", pageA: 2923, pageB: 2623, pageC: 1093 },
+          { 日期: "周四", pageA: 1723, pageB: 1423, pageC: 1093 },
+          { 日期: "周五", pageA: 3792, pageB: 3492, pageC: 1093 },
+          { 日期: "周六", pageA: 4593, pageB: 4293, pageC: 1093 },
+          { 日期: "周日", pageA: 4593, pageB: 4293, pageC: 1093 },
+        ],
+      },
+    };
   },
-  mounted() {
-    this.initChart()
-  },
-  beforeDestroy() {
-    if (!this.chart) {
-      return
-    }
-    // 销毁实例，销毁后实例无法再被使用。
-    this.chart.dispose()
-    this.chart = null
-  },
-  methods: {
-    initChart() {
-      // 创建一个 ECharts 实例
-      this.chart = echarts.init(this.$el, 'macarons')
-      // console.log(echarts, this.chart)
-      this.chart.setOption({
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: { // 坐标轴指示器，坐标轴触发有效
-            type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
-          }
-        },
-        grid: {
-          top: 10,
-          left: '2%',
-          right: '2%',
-          bottom: '2%',
-          containLabel: true
-        },
-        xAxis: [{
-          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-        }],
-        yAxis: [
-          {
-          type: 'value',
-        }],
-        series: [
-          {
-            name: 'pageA',
-            type: 'bar',
-            stack: 'vistors',
-            barWidth: '60%',
-            data: [79, 52, 200, 334, 390, 330, 220],
-            animationDuration
-          },
-          {
-            name: 'pageB',
-            type: 'bar',
-            stack: 'vistors',
-            barWidth: '60%',
-            data: [80, 52, 200, 334, 390, 330, 220],
-            animationDuration
-          },
-          {
-            name: 'pageC',
-            type: 'bar',
-            stack: 'vistors',
-            barWidth: '60%',
-            data: [30, 52, 200, 334, 390, 330, 220],
-            animationDuration
-          }
-        ]
-      })
-    }
-  }
-}
+};
 </script>
