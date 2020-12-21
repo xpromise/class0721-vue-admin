@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>echarts</title>
+  <style>
+    #box{
+      margin: 40px auto;
+      width: 600px;
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 2. 创建具备宽高的容器 -->
+  <div id="box"></div>
+  <!-- 1. 引入echarts -->
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.0.0/echarts.min.js"></script>
+  <script>
+    // 3. 创建echarts实例
+    const myChart = echarts.init(document.getElementById('box'))
+    // 指定图表的配置项和数据
+    // var option = {
+    //   title: {
+    //       text: 'ECharts 入门示例'
+    //   },
+    //   tooltip: {},
+    //   legend: {
+    //       data:['销量1', '销量2']
+    //   },
+    //   xAxis: {
+    //       data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+    //   },
+    //   yAxis: {},
+    //   series: [{
+    //       name: '销量1',
+    //       type: 'bar', // 柱状图
+    //       data: [5, 20, 36, 10, 10, 20]
+    //   }, {
+    //       name: '销量2',
+    //       type: 'bar', // 柱状图
+    //       data: [10, 30, 16, 10, 10, 20]
+    //   }]
+    // };
+
+    var option = {
+    title: {
+        text: '堆叠区域图'
+    },
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'cross',
+            label: {
+                backgroundColor: '#6a7985'
+            }
+        }
+    },
+    legend: {
+        data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
+    },
+    // toolbox: {
+    //     feature: {
+    //         saveAsImage: {}
+    //     }
+    // },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis: [
+        {
+            type: 'category',
+            boundaryGap: false,
+            data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        }
+    ],
+    yAxis: [
+        {
+            type: 'value'
+        }
+    ],
+    series: [
+        {
+            name: '邮件营销',
+            type: 'line',
+            stack: '总量',
+            areaStyle: {},
+            data: [120, 132, 101, 134, 90, 230, 210]
+        },
+        {
+            name: '联盟广告',
+            type: 'line',
+            stack: '总量',
+            areaStyle: {},
+            data: [220, 182, 191, 234, 290, 330, 310]
+        },
+        {
+            name: '视频广告',
+            type: 'line',
+            stack: '总量',
+            areaStyle: {},
+            data: [150, 232, 201, 154, 190, 330, 410]
+        },
+        {
+            name: '直接访问',
+            type: 'line',
+            stack: '总量',
+            areaStyle: {},
+            data: [320, 332, 301, 334, 390, 330, 320]
+        },
+        {
+            name: '搜索引擎',
+            type: 'line',
+            stack: '总量',
+            label: {
+                normal: {
+                    show: true,
+                    position: 'top'
+                }
+            },
+            areaStyle: {},
+            data: [820, 932, 901, 934, 1290, 1330, 1320]
+        }
+    ]
+};
+    // 4. 调用setOption方法生成图表
+    myChart.setOption(option);
+  </script>
+</body>
+</html>
